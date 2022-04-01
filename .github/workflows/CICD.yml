@@ -1,0 +1,51 @@
+name: CI + CD
+
+on:
+  push:
+    branches: [main]
+  pull_requests:
+    branches: [main]
+  workflow_dispatch
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Compile
+        run: echo Hello, World
+
+  DeployDev:
+    name: Deploy to Dev
+    if: github.event_name == 'pull_request'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment:
+      name: Development
+
+    steps:
+      - name: Deploy
+        run: echo I am Deploying!
+
+  DeployStaging:
+    name: Deploy to Staging
+    if: github.event.ref == 'refs/heads/main'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment:
+      name: Staging
+    steps:
+      - name: Deploy
+        run: echo I am deploying!
+
+  DeployProd:
+    name: Deploy to Production
+    needs: [DeployStaging]
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+
+    steps:
+      - name: Deploy
+        run: echo I am deploying!
